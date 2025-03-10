@@ -1,0 +1,80 @@
+---
+title: "applications R OpenAlex et Pubmed"
+author: "Damien Belvèze"
+#date: 
+output: 
+  html_document:
+      toc: true
+      toc-depth: 2
+#      toc_float:
+#        collapsed: true
+#        smooth_scroll: false
+      theme: cerulean
+#css: style.css
+#bibliography: biblio.bib
+#csl: nature.csl
+---
+
+# Méthode
+
+1. récupération dans OpenAlex des hôpitaux universitaires français qui ont produit des publications indexées dans OpenAlex (réussi)
+2. création d'une liste d'établissements à intégrer dans la requête Pubmed champ Affiliation, chaque établissement est séparé du suivant par le booléen OR (réussi)
+3. envoi de la requête dans Pubmed et récupération des articles produits (échec : requête trop longue)
+4. randomisation pour récupérer 100 articles (à faire quand le point 3 est réalisé)
+
+```{r récupération de l'ensemble des hôpitaux universitaires français qui ont produit des publications indexées dans OpenAlex}
+library(openalexR)
+library(dplyr)
+
+french_health_insts <- list(
+  entity = "institutions",
+  country_code = "fr",
+  type = "healthcare",
+  verbose = TRUE
+)
+
+do.call(oa_fetch, c(french_health_insts, list(count_only = TRUE)))
+df <- dplyr::glimpse(do.call(oa_fetch, french_health_insts))
+
+df <- df %>%
+  select(display_name, display_name_alternatives, display_name_acronyms, ror) %>%
+  as_tibble()
+
+print(df)
+```
+
+```{r création de la requête pubmed à partir des noms d'hôpitaux}
+library(stringr)
+
+
+suffix <- "[Affiliation]"
+
+
+combine_strings <- function(x) {
+    paste0(x, suffix, collapse = " OR ")
+}
+affiliation <- combine_strings(x)
+print(affiliation)
+
+```
+
+
+
+```{r ajout des déclaration de conflits d'intérêt dans l'équation}
+library(pubmedR)
+
+query_pubmed <- c(paste0(affiliation, " AND hascois", collapse = " AND "))
+cat(query_pubmed, file = "query.txt")
+```
+
+
+```{r compter le nombre de résultats obtenus suite à la requête}
+
+res <- pmQueryTotalCount(query = query_pubmed, api_key = "af5d067eb5e226247190ab24c22a58cbca08")
+# message obtenu : Erreur dans entrez_check(response) : 
+# HTTP failure 414, the request is too large. For large requests, try using web history as described in the rentrez tutorial
+
+
+```
+
+
