@@ -19,6 +19,18 @@
       ],
       "Hash": "470851b6d5d0ac559e9d01bb352b4021"
     },
+    "XML": {
+      "Package": "XML",
+      "Version": "3.99-0.18",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "methods",
+        "utils"
+      ],
+      "Hash": "4a5eca1070ecfe97e68727ed4b9a89fa"
+    },
     "askpass": {
       "Package": "askpass",
       "Version": "1.2.1",
@@ -423,6 +435,17 @@
       ],
       "Hash": "f4625e061cb2865f111b47ff163a5ca6"
     },
+    "pubmedR": {
+      "Package": "pubmedR",
+      "Version": "0.0.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "XML",
+        "rentrez"
+      ],
+      "Hash": "5ea07714678e80a607187eefc215cd35"
+    },
     "rappdirs": {
       "Package": "rappdirs",
       "Version": "0.3.3",
@@ -432,6 +455,19 @@
         "R"
       ],
       "Hash": "5e3c5dc0b071b21fa128676560dbe94d"
+    },
+    "rentrez": {
+      "Package": "rentrez",
+      "Version": "1.2.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "XML",
+        "httr",
+        "jsonlite"
+      ],
+      "Hash": "90e6d8dc1b2fe96d0753a94943cf604d"
     },
     "renv": {
       "Package": "renv",
