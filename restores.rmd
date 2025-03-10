@@ -22,7 +22,7 @@ output:
 3. envoi de la requête dans Pubmed et récupération des articles produits (échec : requête trop longue)
 4. randomisation pour récupérer 100 articles (à faire quand le point 3 est réalisé)
 
-```{r récupération de l'ensemble des hôpitaux universitaires français qui ont produit des publications indexées dans OpenAlex}
+```{r récupération de l\'ensemble des hôpitaux universitaires français qui ont produit des publications indexées dans OpenAlex}
 library(openalexR)
 library(dplyr)
 
@@ -43,9 +43,10 @@ df <- df %>%
 print(df)
 ```
 
-```{r création de la requête pubmed à partir des noms d'hôpitaux}
+```{r création de la requête pubmed à partir des noms d\'hôpitaux}
 library(stringr)
 
+x <- c(df$display_name)
 
 suffix <- "[Affiliation]"
 
@@ -60,7 +61,7 @@ print(affiliation)
 
 
 
-```{r ajout des déclaration de conflits d'intérêt dans l'équation}
+```{r ajout des déclaration de conflits d\'intérêt dans l\'équation}
 library(pubmedR)
 
 query_pubmed <- c(paste0(affiliation, " AND hascois", collapse = " AND "))
@@ -68,9 +69,9 @@ cat(query_pubmed, file = "query.txt")
 ```
 
 
-```{r compter le nombre de résultats obtenus suite à la requête}
+```{r compter le nombre de résultats obtenus suite à la requête, eval=FALSE}
 
-res <- pmQueryTotalCount(query = query_pubmed, api_key = "af5d067eb5e226247190ab24c22a58cbca08")
+res <- pmQueryTotalCount(query = query_pubmed, api_key = "API key fount on https://account.ncbi.nlm.nih.gov/settings/")
 # message obtenu : Erreur dans entrez_check(response) : 
 # HTTP failure 414, the request is too large. For large requests, try using web history as described in the rentrez tutorial
 
