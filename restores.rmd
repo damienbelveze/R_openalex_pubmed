@@ -28,20 +28,16 @@ library(dplyr)
 
 french_health_insts <- list(
   entity = "institutions",
-  country_code = "fr",
-  type = "healthcare",
+  ror = c("https://ror.org/01yezas83", "https://ror.org/05qec5a53"), # pour ajouter d'autres unités de recherche, ajoutez leurs identifiants dans le ROR (https://ror.org/)
   verbose = TRUE
 )
 
 do.call(oa_fetch, c(french_health_insts, list(count_only = TRUE)))
 df <- dplyr::glimpse(do.call(oa_fetch, french_health_insts))
-
-df <- df %>%
-  select(display_name, display_name_alternatives, display_name_acronyms, ror) %>%
-  as_tibble()
-
 print(df)
+
 ```
+
 
 ```{r création de la requête pubmed à partir des noms d\'hôpitaux}
 library(stringr)
@@ -66,16 +62,57 @@ library(pubmedR)
 
 query_pubmed <- c(paste0(affiliation, " AND hascois", collapse = " AND "))
 cat(query_pubmed, file = "query.txt")
+print(query_pubmed)
 ```
 
 
-```{r compter le nombre de résultats obtenus suite à la requête, eval=FALSE}
+```{r récupérer 100 papiers au hasard parmi les publications indexées dans Pubmed de ces institutions}
+library(pubmedR)
 
-res <- pmQueryTotalCount(query = query_pubmed, api_key = "API key fount on https://account.ncbi.nlm.nih.gov/settings/")
-# message obtenu : Erreur dans entrez_check(response) : 
-# HTTP failure 414, the request is too large. For large requests, try using web history as described in the rentrez tutorial
 
+D <- pmApiRequest(query = query_pubmed, limit = 1000, api_key = "af5d067eb5e226247190ab24c22a58cbca08")
+M <- pmApi2df(D, format="raw")
+
+n_rows <- nrow(M)
+sample_size <- min(100, n_rows)
+set.seed(42)  # optionnel, pour la réplicabilité
+papers <- M[sample(n_rows, sample_size), ]
+head(papers, 1)
+
+# création d'un CSV avec les résultats
+write.csv(papers, file = "output_100.csv", row.names = FALSE)
 
 ```
 
 
+```{r}
+
+library(rentrez)
+# télécharger des articles depuis Pubmed à partir des PMID des 100 références sélectionnées
+fetch_pubmed <- entrez_fetch(db = "pubmed",
+                             id = papers$PMID,
+                             rettype = "xml",
+                             parsed = TRUE)
+
+# print(fetch_pubmed) #Décommenter pour voir le résultat en format xml
+```
+
+
+
+```{r récupérer les déclarations de conflits d\'intérêt dans l\'échantillon des 100 résultats}
+library(rentrez)
+library(XML)
+
+#source : https://quantifyinghealth.com/download-and-analyze-pubmed-articles-in-r-example/#Download%20the%20articles%20from%20PubMed
+
+
+coi <- sapply(xpathApply(fetch_pubmed, "//PubmedArticle//Article//CoiStatement", xmlValue),
+              function(x) ifelse(is.null(x), "No COI statement", x))
+
+# Convert to DataFrame
+coi_df <- data.frame(text = unlist(coi), stringsAsFactors = FALSE)
+
+# View Results
+print(coi_df)
+
+```
